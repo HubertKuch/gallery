@@ -1,11 +1,17 @@
+import Layout from "./components/Layout";
+import Sidebar from "./components/Sidebar";
+import MainContent from "./components/MainContent";
+import Topbar from "./components/Topbar";
+
 function App() {
   return (
-    <main className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold text-primary">Photo Management App</h1>
-      <p className="text-secondary my-4">Your photos at a glance.</p>
-      <button className="btn btn-primary">Import Photos</button>
-      {import.meta.env.DEV && <p className="text-xs text-base-content/50 mt-4">Running in development mode.</p>}
-    </main>
+    <Layout>
+      <Sidebar />
+      <div className="flex flex-col flex-1">
+        <Topbar />
+        <MainContent />
+      </div>
+    </Layout>
   );
 }
 
