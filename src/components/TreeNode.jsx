@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const TreeNode = ({ node }) => {
+function TreeNode({ node }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleToggle = () => {
@@ -28,6 +28,6 @@ const TreeNode = ({ node }) => {
       )}
     </div>
   );
-};
+}
 
 export default TreeNode;

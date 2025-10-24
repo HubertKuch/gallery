@@ -23,7 +23,7 @@ const treeData = {
   ],
 };
 
-const Sidebar = () => {
+function Sidebar() {
   const [width, setWidth] = useState(256);
   const { openSettings } = useViewStore();
 
@@ -47,6 +47,6 @@ const Sidebar = () => {
       </aside>
     </Resizable>
   );
-};
+}
 
 export default Sidebar;
