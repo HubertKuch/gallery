@@ -19,8 +19,7 @@
     ],
     "security": {
       "csp": null
-    },
-    "menu": []
+    }
   },
   "bundle": {
     "active": true,

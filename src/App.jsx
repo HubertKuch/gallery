@@ -3,6 +3,7 @@ import Sidebar from "./components/Sidebar";
 import MainContent from "./components/MainContent";
 import Topbar from "./components/Topbar";
 import WindowMenu from "./components/WindowMenu.jsx";
+import SettingsModal from "./components/SettingsModal.jsx";
 
 function App() {
     return (<>
@@ -13,7 +14,9 @@ function App() {
                     <Topbar/>
                     <MainContent/>
                 </div>
-            </Layout></>);
+            </Layout>
+            <SettingsModal />
+            </>);
 }
 
 export default App;

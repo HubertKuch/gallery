@@ -1,6 +1,7 @@
 import { Resizable } from 'react-resizable';
 import { useState } from 'react';
 import TreeNode from './TreeNode';
+import useViewStore from '../stores/viewStore.js';
 
 const treeData = {
   name: 'Photos',
@@ -24,6 +25,7 @@ const treeData = {
 
 const Sidebar = () => {
   const [width, setWidth] = useState(256);
+  const { openSettings } = useViewStore();
 
   return (
     <Resizable
@@ -35,11 +37,13 @@ const Sidebar = () => {
       maxConstraints={[500, Infinity]}
     >
       <aside
-        className="bg-base-200/30 p-4 border-r border-base-300/50 h-full"
+        className="bg-base-200/30 p-4 border-r border-base-300/50 h-full flex flex-col"
         style={{ width: `${width}px` }}
       >
         <h2 className="text-lg font-bold px-2 mb-4">Albums</h2>
-        <TreeNode node={treeData} />
+        <div className="flex-1">
+          <TreeNode node={treeData} />
+        </div>
       </aside>
     </Resizable>
   );

@@ -1,26 +1,35 @@
 import {getCurrentWindow} from '@tauri-apps/api/window';
-
-const menuConfig = [
-    {
-        name: "File",
-        children: [
-            {
-                name: "Exit",
-                action: (window) => {
-                    window.close().then();
-                }
-            }
-        ]
-    },
-    {
-        name: "Import"
-    },
-    {
-        name: "Export"
-    }
-];
+import useViewStore from "../stores/viewStore.js";
+import {safe} from "../utils.js";
 
 const WindowMenu = () => {
+    const {openSettings} = useViewStore();
+
+    const menuConfig = [
+        {
+            name: "File",
+            children: [
+                {
+                    name: "Settings",
+                    action: (window) => {
+                        openSettings();
+                    }
+                },
+                {
+                    name: "Exit",
+                    action: (window) => {
+                        window.close().then();
+                    }
+                }
+            ]
+        },
+        {
+            name: "Import"
+        },
+        {
+            name: "Export"
+        }
+    ];
     return (
         <div className="flex items-center gap-2">
             {menuConfig.map((menu) => (
@@ -30,7 +39,7 @@ const WindowMenu = () => {
                         <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
                             {menu.children.map((child) => (
                                 <li key={child.name}>
-                                    <a onClick={() => child.action(getCurrentWindow())}>{child.name}</a>
+                                    <a onClick={() => child.action(safe(getCurrentWindow))}>{child.name}</a>
                                 </li>
                             ))}
                         </ul>
