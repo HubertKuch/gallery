@@ -1,13 +1,14 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import "./index.css";
-import {scan} from "react-scan";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
+import useSettingsStore from './stores/settingsStore';
 
-scan({
-    enabled: import.meta.env.DEV
-})
+// Initialize settings store
+useSettingsStore.getState().init();
 
-ReactDOM.createRoot(document.getElementById("root")).render(<React.StrictMode>
-    <App/>
-</React.StrictMode>,);
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);

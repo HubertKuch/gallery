@@ -1,31 +1,7 @@
-import { useEffect, useState } from 'react';
-import Database from '@tauri-apps/plugin-sql';
+import useSettingsStore from '../../stores/settingsStore';
 
 function Appearance() {
-  const [theme, setTheme] = useState('light');
-
-  useEffect(() => {
-    async function loadDb() {
-      const db = await Database.load('sqlite:preferences.db');
-      await db.execute(
-        'CREATE TABLE IF NOT EXISTS preferences (key TEXT PRIMARY KEY, value TEXT NOT NULL)',
-      );
-      const result = await db.select('SELECT value FROM preferences WHERE key = ?', ['theme']);
-      if (result.length > 0) {
-        setTheme(result[0].value);
-      }
-    }
-    loadDb();
-  }, []);
-
-  const handleThemeChange = async (newTheme) => {
-    const db = await Database.load('sqlite:preferences.db');
-    await db.execute(
-      'INSERT OR REPLACE INTO preferences (key, value) VALUES (?, ?)',
-      ['theme', newTheme],
-    );
-    setTheme(newTheme);
-  };
+  const { theme, setTheme } = useSettingsStore();
 
   return (
     <form>
@@ -38,7 +14,7 @@ function Appearance() {
             name="theme"
             className="radio checked:bg-blue-500"
             checked={theme === 'light'}
-            onChange={() => handleThemeChange('light')}
+            onChange={() => setTheme('light')}
           />
         </label>
       </div>
@@ -50,7 +26,7 @@ function Appearance() {
             name="theme"
             className="radio checked:bg-blue-500"
             checked={theme === 'dark'}
-            onChange={() => handleThemeChange('dark')}
+            onChange={() => setTheme('dark')}
           />
         </label>
       </div>
