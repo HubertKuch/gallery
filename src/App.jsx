@@ -13,7 +13,7 @@ function App() {
       <WindowMenu />
       <Layout>
         <Sidebar />
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1 max-h-[calc(100%-3rem)]">
           <Topbar />
           <MainContent />
         </div>
