@@ -11,6 +11,10 @@
     "sql:default",
     "sql:allow-execute",
     "sql:allow-select",
-    "core:window:allow-close"
+    "core:window:allow-close",
+    "dialog:default",
+    "fs:default",
+    "fs:allow-app-read",
+    "fs:allow-home-read"
   ]
 }

@@ -1,30 +1,12 @@
 import { useState } from 'react';
 import TreeNode from './TreeNode';
 import useViewStore from '../stores/viewStore.js';
-
-const treeData = {
-  name: 'Photos',
-  children: [
-    {
-      name: '2023',
-      children: [
-        { name: 'Holiday' },
-        { name: 'Work' },
-      ],
-    },
-    {
-      name: '2024',
-      children: [
-        { name: 'Vacation' },
-        { name: 'Projects', children: [{ name: 'Project 1' }] },
-      ],
-    },
-  ],
-};
+import useAlbumStore from '../stores/albumStore.js';
 
 function Sidebar() {
   const [width] = useState(256);
   const { openSettings } = useViewStore();
+  const { tree } = useAlbumStore();
 
   return (
     <aside
@@ -33,7 +15,7 @@ function Sidebar() {
     >
       <h2 className="text-lg font-bold px-2 mb-4">Albums</h2>
       <div className="flex-1">
-        <TreeNode node={treeData} />
+        {tree && <TreeNode node={tree} />}
       </div>
       <div>
         <button className="btn btn-ghost btn-sm" onClick={openSettings}>

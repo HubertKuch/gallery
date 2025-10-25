@@ -5,6 +5,7 @@ import MainContent from './components/MainContent';
 import Topbar from './components/Topbar';
 import WindowMenu from './components/WindowMenu.jsx';
 import SettingsModal from './components/SettingsModal.jsx';
+import MessageModal from './components/MessageModal.jsx';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         </div>
       </Layout>
       <SettingsModal />
+      <MessageModal />
     </>
   );
 }

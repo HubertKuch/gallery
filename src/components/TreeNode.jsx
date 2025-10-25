@@ -1,27 +1,28 @@
 import { useState } from 'react';
-import { FolderIcon, FolderOpenIcon } from '@proicons/react';
+import useAlbumStore from '../stores/albumStore';
 
 function TreeNode({ node }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { setCurrentAlbum } = useAlbumStore();
+  const hasChildren = node.children && node.children.length > 0;
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
+    setCurrentAlbum(node);
   };
 
   return (
-    <div className="ml-4 w-full text-left items-start content-start">
-      <button onClick={handleToggle} type="button" className="block pointer btn btn-sm btn-ghost mr-1 text-left w-full">
-        {node.children && (isOpen ? <FolderOpenIcon className="inline" /> : <FolderIcon className="inline" />)}
-        <span>{node.name}</span>
-      </button>
-      {isOpen && node.children && (
-        <ul>
+    <div>
+      <div onClick={handleToggle} className="flex items-center cursor-pointer">
+        {hasChildren && <span>{isOpen ? '▼' : '►'}</span>}
+        <span className="ml-2">{node.name}</span>
+      </div>
+      {isOpen && hasChildren && (
+        <div className="ml-4">
           {node.children.map((child) => (
-            <li key={child.name}>
-              <TreeNode node={child} />
-            </li>
+            <TreeNode key={child.name} node={child} />
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

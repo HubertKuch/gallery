@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import useViewStore from '../stores/viewStore.js';
-import Appearance from './settings/Appearance.jsx';
+import General from './settings/General.jsx';
 import Albums from './settings/Albums.jsx';
 
 function SettingsModal() {
   const { settingsOpen, closeSettings } = useViewStore();
-  const [activeTab, setActiveTab] = useState('appearance');
+  const [activeTab, setActiveTab] = useState('general');
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'appearance':
-        return <Appearance />;
+      case 'general':
+        return <General />;
       case 'albums':
         return <Albums />;
       default:
@@ -28,10 +28,10 @@ function SettingsModal() {
               <li className="mb-2">
                 <a
                   href="#"
-                  className={`btn btn-ghost btn-sm justify-start ${activeTab === 'appearance' ? 'btn-active' : ''}`}
-                  onClick={() => setActiveTab('appearance')}
+                  className={`btn btn-ghost btn-sm justify-start ${activeTab === 'general' ? 'btn-active' : ''}`}
+                  onClick={() => setActiveTab('general')}
                 >
-                  Appearance
+                  General
                 </a>
               </li>
               <li className="mb-2">
