@@ -1,6 +1,7 @@
 import useAlbumStore from '../stores/albumStore';
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { useMemo } from 'react';
+import usePhotoStore from "../stores/photoStore.js";
 
 const ImageSkeleton = () => (
     <div className="skeleton aspect-square bg-base-300 rounded-lg"></div>
@@ -13,6 +14,7 @@ const MainContent = () => {
         isLoadingThumbnails,
         imageCount
     } = useAlbumStore();
+    const { openDetailsSidebar } = usePhotoStore();
 
     const imageUrls = useMemo(() => {
         if (!currentAlbumThumbnails) {
@@ -39,7 +41,7 @@ const MainContent = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
 
                 {imageUrls.map((imageUrl) => (
-                    <div key={imageUrl} className="aspect-square hover:bg-base-300/90 select-none cursor-pointer rounded-lg p-1 bg-transparent overflow-hidden">
+                    <div key={imageUrl} onClick={() => openDetailsSidebar(imageUrl)} className="aspect-square hover:bg-base-300/90 select-none cursor-pointer rounded-lg p-1 bg-transparent overflow-hidden">
                         <img
                             src={imageUrl}
                             alt=""
