@@ -11,6 +11,8 @@ const useAlbumStore = create((set) => ({
   loadAlbum: async (path) => {
     try {
       const tree = await albumService.readDirectory(path);
+      console.log('test');
+
       set({ tree });
     } catch (e) {
       console.error(e);

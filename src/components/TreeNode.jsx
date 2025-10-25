@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FolderIcon, FolderOpenIcon } from '@proicons/react';
 import useAlbumStore from '../stores/albumStore';
 
 function TreeNode({ node }) {
@@ -14,7 +15,7 @@ function TreeNode({ node }) {
   return (
     <div>
       <div onClick={handleToggle} className="flex items-center cursor-pointer">
-        {hasChildren && <span>{isOpen ? '▼' : '►'}</span>}
+        {hasChildren && (isOpen ? <FolderOpenIcon className="inline" /> : <FolderIcon className="inline" />)}
         <span className="ml-2">{node.name}</span>
       </div>
       {isOpen && hasChildren && (

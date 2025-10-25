@@ -1,42 +1,40 @@
 import { readDir } from '@tauri-apps/plugin-fs';
+import { join } from '@tauri-apps/api/path';
 
 class AlbumService {
   async readDirectory(path) {
-    const entries = await readDir(path, { recursive: true });
-    return this.buildTree(entries, path);
+    return this.readDirRecursive(path, path.split('/').pop());
   }
 
-  buildTree(entries, rootPath) {
-    console.log(rootPath, entries);
-
-    const root = { name: 'Photos', path: rootPath, children: [] };
-    const map = { [rootPath]: root };
+  async readDirRecursive(currentPath, name) {
+    const entries = await readDir(currentPath);
+    const node = { name, path: currentPath, children: [] };
 
     for (const entry of entries) {
       if (entry.name.startsWith('.')) continue;
 
-      const parentPath = entry.path.substring(0, entry.path.lastIndexOf('/'));
-      const parentNode = map[parentPath];
+      const fullPath = await join(currentPath, entry.name);
 
-      if (parentNode) {
-        if (entry.children) {
-          const node = { name: entry.name, path: entry.path, children: [] };
-          parentNode.children.push(node);
-          map[entry.path] = node;
-        } else if (/\.(jpe?g|png|gif|webp)$/i.test(entry.name)) {
-          parentNode.children.push({ name: entry.name, path: entry.path });
+      if (entry.isDirectory) {
+        const childNode = await this.readDirRecursive(fullPath, entry.name);
+        node.children.push(childNode);
+      } else if (entry.isFile) {
+        if (/\.(jpe?g|png|gif|webp)$/i.test(entry.name)) {
+          node.children.push({ name: entry.name, path: fullPath });
         }
       }
     }
-    return root;
+    return node;
   }
 
   async getImages(path) {
+    if (!path) return [];
     const entries = await readDir(path);
     const images = [];
     for (const entry of entries) {
-      if (!entry.children && /\.(jpe?g|png|gif|webp)$/i.test(entry.name)) {
-        images.push(entry.path);
+      if (entry.isFile && /\.(jpe?g|png|gif|webp)$/i.test(entry.name)) {
+        const fullPath = await join(path, entry.name);
+        images.push(fullPath);
       }
     }
     return images;

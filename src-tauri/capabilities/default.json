@@ -13,8 +13,16 @@
     "sql:allow-select",
     "core:window:allow-close",
     "dialog:default",
-    "fs:default",
-    "fs:allow-app-read",
-    "fs:allow-home-read"
+    "fs:allow-read-dir",
+    "fs:allow-write-file",
+    "fs:allow-read-file",
+    "fs:allow-mkdir",
+    "fs:allow-copy-file",
+    "fs:allow-remove",
+    "fs:allow-rename",
+    {
+      "identifier": "fs:scope",
+      "allow": ["**/*"]
+    }
   ]
 }
