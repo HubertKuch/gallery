@@ -5,3 +5,15 @@ export function safe(callable) {
     return null;
   }
 }
+
+export function safeUse(callable, callback) {
+  try {
+    const out = callable();
+
+    if (out) callback(out);
+
+    return null;
+  } catch (error) {
+    return null;
+  }
+}

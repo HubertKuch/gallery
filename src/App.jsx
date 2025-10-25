@@ -1,3 +1,4 @@
+import { getCurrentWebview } from '@tauri-apps/api/webview';
 import Layout from './components/Layout';
 import Sidebar from './components/Sidebar';
 import MainContent from './components/MainContent';
