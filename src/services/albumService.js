@@ -18,10 +18,6 @@ class AlbumService {
       if (entry.isDirectory) {
         const childNode = await this.readDirRecursive(fullPath, entry.name);
         node.children.push(childNode);
-      } else if (entry.isFile) {
-        if (/\.(jpe?g|png|gif|webp)$/i.test(entry.name)) {
-          node.children.push({ name: entry.name, path: fullPath });
-        }
       }
     }
     return node;
