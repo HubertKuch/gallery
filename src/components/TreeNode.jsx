@@ -8,15 +8,15 @@ function TreeNode({ node }) {
   };
 
   return (
-    <div className="ml-4">
-      <div className="flex items-center">
+    <div className="ml-4 w-full text-left items-start content-start">
+      <button onClick={handleToggle} type="button" className="block pointer btn btn-sm btn-ghost mr-1 text-left w-full">
         {node.children && (
-          <button onClick={handleToggle} className="btn btn-xs btn-ghost mr-1">
+          <span>
             {isOpen ? '[-]' : '[+]'}
-          </button>
+          </span>
         )}
         <span>{node.name}</span>
-      </div>
+      </button>
       {isOpen && node.children && (
         <ul>
           {node.children.map((child) => (
