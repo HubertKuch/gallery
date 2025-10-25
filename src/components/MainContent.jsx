@@ -1,6 +1,6 @@
 const MainContent = () => {
   return (
-    <main className="flex-1 p-4 overflow-y-auto">
+    <main className="flex-1 p-4 overflow-y-auto max-h-[calc(100%-3rem)]">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-2xl font-bold">24 October 2025</h2>

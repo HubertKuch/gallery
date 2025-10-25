@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Database from '@tauri-apps/plugin-sql';
 
 function Appearance() {
@@ -28,7 +28,7 @@ function Appearance() {
   };
 
   return (
-    <div>
+    <form>
       <h2 className="text-lg font-semibold mb-4">Appearance</h2>
       <div className="form-control">
         <label className="label cursor-pointer">
@@ -54,7 +54,7 @@ function Appearance() {
           />
         </label>
       </div>
-    </div>
+    </form>
   );
 }
 
