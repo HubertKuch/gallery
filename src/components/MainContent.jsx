@@ -23,6 +23,8 @@ const MainContent = () => {
         return currentAlbumThumbnails.map(imagePath => convertFileSrc(imagePath));
     }, [currentAlbumThumbnails]);
 
+    console.log(currentAlbum, currentAlbumThumbnails)
+
     const skeletonCount = imageCount - imageUrls.length;
 
     return (

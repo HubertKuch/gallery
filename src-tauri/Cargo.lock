@@ -113,6 +113,7 @@ dependencies = [
  "image",
  "md5",
  "rayon",
+ "rexif",
  "serde",
  "serde_json",
  "tauri",
@@ -3818,6 +3819,12 @@ dependencies = [
  "wasm-streams",
  "web-sys",
 ]
+
+[[package]]
+name = "rexif"
+version = "0.7.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be932047c168919c8d5af065b16fa7d4bd24835ffa256bf0cf1ff463f91c15df"
 
 [[package]]
 name = "rfd"

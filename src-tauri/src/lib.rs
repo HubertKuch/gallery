@@ -1,8 +1,12 @@
+use std::collections::HashMap;
 use std::fs;
+use std::fs::File;
+use std::io::BufReader;
 use std::path::{Path};
 use std::thread;
 use tauri::{AppHandle, Manager, Emitter, Runtime};
 use rayon::prelude::*;
+use rexif::ExifData;
 
 fn is_image(path: &Path) -> bool {
     match path.extension().and_then(|s| s.to_str()) {
@@ -85,6 +89,31 @@ async fn start_album_load<R: Runtime>(album_path: String, app_handle: AppHandle<
     });
 }
 
+
+#[derive(serde::Serialize, Clone)]
+struct ImageMetadata {
+    entries: HashMap<String, String>,
+}
+
+#[tauri::command]
+async fn get_image_metadata(file_path: String) -> Result<ImageMetadata, String> {
+    println!("{}", file_path);
+    let exif_data = rexif::parse_file(&file_path)
+        .map_err(|e| format!("Failed to parse EXIF data: {}", e.to_string()))?;
+
+    let mut metadata_map = HashMap::new();
+
+    for entry in exif_data.entries {
+        metadata_map.insert(
+            entry.tag.to_string(),
+            entry.value_more_readable.to_string()
+        );
+    }
+
+    Ok(ImageMetadata { entries: metadata_map })
+}
+
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -93,7 +122,7 @@ pub fn run() {
         .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![start_album_load])
+        .invoke_handler(tauri::generate_handler![start_album_load,get_image_metadata])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
