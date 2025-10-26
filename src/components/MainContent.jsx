@@ -16,22 +16,22 @@ const MainContent = () => {
     } = useAlbumStore();
     const { openDetailsSidebar } = usePhotoStore();
 
-    const imageUrls = useMemo(() => {
+    const imageItems = useMemo(() => {
         if (!currentAlbumThumbnails) {
             return [];
         }
-        return currentAlbumThumbnails.map(imagePath => convertFileSrc(imagePath));
+        return currentAlbumThumbnails.map(item => ({
+            original: item.original,
+            thumbUrl: convertFileSrc(item.thumb)
+        }));
     }, [currentAlbumThumbnails]);
 
-    console.log(currentAlbum, currentAlbumThumbnails)
-
-    const skeletonCount = imageCount - imageUrls.length;
-
+    const skeletonCount = imageCount - imageItems.length;
     return (
         <main className="flex-1 p-4 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold">{currentAlbum ? currentAlbum.name : 'Select an album'}</h2>
+                    <h2 className="text-2xl font-bold">{currentAlbum ? currentAlbum.path : 'Select an album'}</h2>
                     {isLoadingThumbnails && imageCount === 0 && (
                         <span className="loading loading-spinner loading-sm"></span>
                     )}
@@ -41,11 +41,14 @@ const MainContent = () => {
                 </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-
-                {imageUrls.map((imageUrl) => (
-                    <div key={imageUrl} onClick={() => openDetailsSidebar(imageUrl)} className="aspect-square hover:bg-base-300/90 select-none cursor-pointer rounded-lg p-1 bg-transparent overflow-hidden">
+                {imageItems.map((item) => (
+                    <div
+                        key={item.original}
+                        onClick={() => openDetailsSidebar(item.original)}
+                        className="aspect-square hover:bg-base-300/90 select-none cursor-pointer rounded-lg p-1 bg-transparent overflow-hidden"
+                    >
                         <img
-                            src={imageUrl}
+                            src={item.thumbUrl}
                             alt=""
                             className="w-full h-full object-cover rounded-md hover:transform hover:scale-105 transition-all duration-100"
                             loading="lazy"
@@ -61,7 +64,7 @@ const MainContent = () => {
                     ))
                 }
             </div>
-            {import.meta.env.DEV && <p className="text-xs text-base-content/50 mt-4">Running in development mode.</p>}
+            {import.meta.env.DEV && <p className="text-xs text-base-content/50 mt-4">Running in new-dev mode.</p>}
         </main>
     );
 };

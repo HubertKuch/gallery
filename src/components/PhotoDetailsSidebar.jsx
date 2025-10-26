@@ -16,7 +16,7 @@ function PhotoDetailsSidebar() {
         </button>
       </div>
       <div className="overflow-x-hidden">
-        <img src={selectedPhoto.path} alt="" className="w-full h-auto rounded-lg mb-4" />
+        <img src={selectedPhoto.url} alt="" className="w-full h-auto rounded-lg mb-4" />
         <ul>
           {Object.entries(selectedPhoto.metadata).map(([key, value]) => (
             <li key={key} title={String(value)} className="text-wrap max-w-full">

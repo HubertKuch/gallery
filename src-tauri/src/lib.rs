@@ -7,6 +7,9 @@ use std::thread;
 use tauri::{AppHandle, Manager, Emitter, Runtime};
 use rayon::prelude::*;
 use rexif::ExifData;
+use image::GenericImageView; // <-- Make sure this is in your `use` statements
+
+// --- is_image, create_new_thumbnail, process_single_thumbnail functions are unchanged ---
 
 fn is_image(path: &Path) -> bool {
     match path.extension().and_then(|s| s.to_str()) {
@@ -53,6 +56,14 @@ struct AlbumMetadata {
     image_count: usize,
 }
 
+// 1. --- CREATE THIS STRUCT ---
+// This payload matches what your frontend (MainContent.jsx) expects
+#[derive(serde::Serialize, Clone)]
+struct ThumbnailReadyPayload {
+    original: String,
+    thumb: String,
+}
+
 #[tauri::command]
 async fn start_album_load<R: Runtime>(album_path: String, app_handle: AppHandle<R>) {
     thread::spawn(move || {
@@ -74,10 +85,16 @@ async fn start_album_load<R: Runtime>(album_path: String, app_handle: AppHandle<
         let image_count = image_paths.len();
         app_handle.emit("album-metadata-ready", AlbumMetadata { image_count }).unwrap();
 
+        // 2. --- UPDATE THE PARALLEL LOOP ---
         image_paths.par_iter().for_each(|path_str| {
             match process_single_thumbnail(path_str, &app_handle) {
                 Ok(thumb_path) => {
-                    app_handle.emit("thumbnail-ready", thumb_path).unwrap();
+                    // 3. --- EMIT THE NEW PAYLOAD OBJECT ---
+                    // This now sends { original: "...", thumb: "..." }
+                    app_handle.emit("thumbnail-ready", ThumbnailReadyPayload {
+                        original: path_str.clone(),
+                        thumb: thumb_path,
+                    }).unwrap();
                 }
                 Err(e) => {
                     eprintln!("Failed to generate thumbnail for {}: {}", path_str, e);
@@ -126,3 +143,4 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
