@@ -29,6 +29,7 @@ image = "0.25.8"
 md5 = "0.8.0"
 rayon = "1.10.0"
 rexif = "0.7.5"
+rawloader = "0.37.0"
 
 [features]
 custom-protocol = ["tauri/custom-protocol"]

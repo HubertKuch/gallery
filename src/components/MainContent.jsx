@@ -2,10 +2,33 @@ import useAlbumStore from '../stores/albumStore';
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { useMemo } from 'react';
 import usePhotoStore from "../stores/photoStore.js";
+import {ArrowRight} from "@proicons/react";
+import {albumPathRelatedToDefaultPath} from "../utils.js";
 
 const ImageSkeleton = () => (
     <div className="skeleton aspect-square bg-base-300 rounded-lg"></div>
 );
+
+const Breadcrumbs = ({ path }) => {
+    if (!path) {
+        return null;
+    }
+
+    const parts = path.split('/').filter(part => part.length > 0);
+
+    return (
+        <div className="text-sm breadcrumbs mb-2">
+            <ul>
+                {parts.map((part, index) => (
+                    <li key={index}>
+                        <a>{part}</a>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
 
 const MainContent = () => {
     const {
@@ -31,7 +54,7 @@ const MainContent = () => {
         <main className="flex-1 p-4 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold">{currentAlbum ? currentAlbum.path : 'Select an album'}</h2>
+                    <h2 className="text-2xl font-bold">{currentAlbum ? <Breadcrumbs path={albumPathRelatedToDefaultPath(currentAlbum.path)} /> : 'Select an album'}</h2>
                     {isLoadingThumbnails && imageCount === 0 && (
                         <span className="loading loading-spinner loading-sm"></span>
                     )}
