@@ -23,9 +23,18 @@ pub fn process_raw_file(raw_file_path: String, jpeg_path: &mut PathBuf) -> Proce
     let largest_thumb = thumbs.iter().max_by_key(|thumb| thumb.width * thumb.height);
     let smaller_thumb = thumbs.iter().min_by_key(|thumb| thumb.width * thumb.height);
 
-    save_thumb_with_metadata(largest_thumb, &PathBuf::from(jpeg_path.to_str().unwrap().replace("rawpreview", "thumbnails")), &PathBuf::from(&raw_file_path))?;
+    // The path for the smaller thumbnail, inside the 'thumbnails' directory.
+    let thumbnail_path_str = jpeg_path
+        .to_str()
+        .ok_or("Invalid jpeg_path: not valid UTF-8")?
+        .replace("rawpreview", "thumbnails");
+    let thumbnail_path = PathBuf::from(thumbnail_path_str);
 
-    Ok(save_thumb_with_metadata(smaller_thumb, jpeg_path, &PathBuf::from(&raw_file_path))?)
+    // Save the smaller thumbnail to the 'thumbnails' directory.
+    save_thumb_with_metadata(smaller_thumb, &thumbnail_path, &PathBuf::from(&raw_file_path))?;
+
+    // Save the largest thumbnail (the preview) to the 'rawpreview' directory and return its path.
+    Ok(save_thumb_with_metadata(largest_thumb, jpeg_path, &PathBuf::from(&raw_file_path))?)
 }
 
 pub fn get_preview_path_by_thumbnail(thumbnail_path: &str) -> String {
@@ -35,18 +44,22 @@ pub fn get_preview_path_by_thumbnail(thumbnail_path: &str) -> String {
 fn save_thumb_with_metadata(thumb: Option<&ThumbnailImage>, path: &PathBuf, metadata_original_path: &PathBuf) -> ProcessResult<PathBuf> {
     if let Some(thumb) = thumb {
         println!(
-            "DEBUG: Found largest thumbnail ({}x{}). Saving to: {}",
+            "DEBUG: Found thumbnail ({}x{}). Saving to: {}",
             thumb.width, thumb.height, path.display()
         );
 
-        fs::write(&path, &thumb.data).unwrap();
-        copy_metadata(metadata_original_path.to_str().unwrap(), path.to_str().unwrap())?;
+        fs::write(&path, &thumb.data)?;
 
-        println!("DEBUG: Largest thumbnail saved successfully.");
+        let original_path_str = metadata_original_path.to_str().ok_or("Original path is not valid UTF-8")?;
+        let dest_path_str = path.to_str().ok_or("Destination path is not valid UTF-8")?;
+
+        copy_metadata(original_path_str, dest_path_str)?;
+
+        println!("DEBUG: Thumbnail saved successfully to {}", path.display());
 
         ProcessResult::Ok(path.to_path_buf())
     } else {
-        println!("DEBUG: No thumbnails found in the file.");
+        println!("DEBUG: No thumbnail found to save for path {}", path.display());
 
         Err("No thumbnails found in the file.".into())
     }

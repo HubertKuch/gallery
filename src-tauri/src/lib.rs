@@ -65,16 +65,19 @@ fn process_single_thumbnail<R: Runtime>(
 ) -> Result<String, String> {
     let cache_dirs = create_cache_dirs(app_handle)?;
     let thumbnail_dir = cache_dirs.thumbnail_dir;
+    let preview_dir = cache_dirs.preview_dir;
 
     let hash = md5::compute(original_path.as_bytes());
     let thumbnail_filename = format!("{:x}.jpg", hash);
-    let mut thumbnail_path = thumbnail_dir.join(thumbnail_filename);
+    let thumbnail_path = thumbnail_dir.join(&thumbnail_filename);
 
     if !thumbnail_path.exists() {
         let path = Path::new(original_path);
         match path.extension().and_then(|s| s.to_str()) {
             Some(ext) if matches!(ext.to_lowercase().as_str(), "cr2" | "nef" | "arw") => {
-                process_raw_file(original_path.to_string(), &mut thumbnail_path)
+                // For RAW files, the main "thumbnail" is the large preview.
+                let mut preview_path = preview_dir.join(&thumbnail_filename);
+                process_raw_file(original_path.to_string(), &mut preview_path)
                     .map_err(|e| e.to_string())?;
             }
             _ => {
@@ -178,8 +181,15 @@ async fn get_image_metadata(file_path: String) -> Result<ImageMetadata, String> 
 }
 
 #[tauri::command]
-fn get_raw_preview_path_by_thumbnail(thumbnail_path: String) -> String {
-    get_preview_path_by_thumbnail(thumbnail_path.as_str())
+fn get_raw_preview_path_by_thumbnail(thumbnail_path: String) -> Result<String, String> {
+    let preview_path_str = get_preview_path_by_thumbnail(thumbnail_path.as_str());
+    let preview_path = Path::new(&preview_path_str);
+
+    if preview_path.exists() {
+        Ok(preview_path_str)
+    } else {
+        Err(format!("Preview file not found at: {}", preview_path_str))
+    }
 }
 
 #[tauri::command]
