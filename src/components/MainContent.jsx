@@ -70,8 +70,11 @@ const MainContent = () => {
                             console.log(item);
                             openDetailsSidebar(isRawFile(item.original) ? await invoke("get_raw_preview_path_by_thumbnail", {thumbnailPath: tauriAssetToPath(item.thumbUrl)}) : item.original).then()
                         }}
-                        className="aspect-square hover:bg-base-300/90 select-none cursor-pointer rounded-lg p-1 bg-transparent overflow-hidden"
+                        className="relative aspect-square hover:bg-base-300/90 select-none cursor-pointer rounded-lg p-1 bg-transparent overflow-hidden"
                     >
+                        {isRawFile(item.original) && (
+                            <div className="badge badge-neutral absolute top-2 right-2 z-10">RAW</div>
+                        )}
                         <img
                             src={item.thumbUrl}
                             alt=""
