@@ -132,6 +132,7 @@ struct ImageMetadata {
 
 #[tauri::command]
 async fn get_image_metadata(file_path: String) -> Result<ImageMetadata, String> {
+    println!("Getting metadata for {}", file_path);
     let path = Path::new(&file_path);
     let mut metadata_map = HashMap::new();
 

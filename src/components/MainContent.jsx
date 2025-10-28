@@ -2,8 +2,7 @@ import useAlbumStore from '../stores/albumStore';
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { useMemo } from 'react';
 import usePhotoStore from "../stores/photoStore.js";
-import {ArrowRight} from "@proicons/react";
-import {albumPathRelatedToDefaultPath} from "../utils.js";
+import {albumPathRelatedToDefaultPath, isRawFile, tauriAssetToPath} from "../utils.js";
 
 const ImageSkeleton = () => (
     <div className="skeleton aspect-square bg-base-300 rounded-lg"></div>
@@ -67,7 +66,10 @@ const MainContent = () => {
                 {imageItems.map((item) => (
                     <div
                         key={item.original}
-                        onClick={() => openDetailsSidebar(item.original)}
+                        onClick={() => {
+                            console.log(item);
+                            openDetailsSidebar(isRawFile(item.original) ? tauriAssetToPath(item.thumbUrl) : item.original).then()
+                        }}
                         className="aspect-square hover:bg-base-300/90 select-none cursor-pointer rounded-lg p-1 bg-transparent overflow-hidden"
                     >
                         <img

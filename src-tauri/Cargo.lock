@@ -114,6 +114,7 @@ dependencies = [
  "md5",
  "rayon",
  "rexif",
+ "rexiv2",
  "rsraw",
  "serde",
  "serde_json",
@@ -991,7 +992,7 @@ version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "330c60081dcc4c72131f8eb70510f1ac07223e5d4163db481a04a0befcffa412"
 dependencies = [
- "libloading 0.7.4",
+ "libloading 0.8.9",
 ]
 
 [[package]]
@@ -1592,6 +1593,16 @@ dependencies = [
  "libc",
  "r-efi",
  "wasip2",
+]
+
+[[package]]
+name = "gexiv2-sys"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c4edf7a47be383873c52eb34426723c7c9b040f9e58cf5088f2253cef149daf1"
+dependencies = [
+ "libc",
+ "pkg-config",
 ]
 
 [[package]]
@@ -3892,6 +3903,17 @@ name = "rexif"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be932047c168919c8d5af065b16fa7d4bd24835ffa256bf0cf1ff463f91c15df"
+
+[[package]]
+name = "rexiv2"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "11ecb9dccad43fea1bf58ea7bb8e34614446bea8aa00f78add6624d7ee26fb87"
+dependencies = [
+ "gexiv2-sys",
+ "libc",
+ "num-rational",
+]
 
 [[package]]
 name = "rfd"

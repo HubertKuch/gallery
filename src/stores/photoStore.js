@@ -6,6 +6,7 @@ const usePhotoStore = create((set) => ({
   selectedPhoto: null,
   openDetailsSidebar: async (photoPath) => {
     const metadata = await MetadataService.getMetadata(photoPath);
+
     set({ selectedPhoto: { path: photoPath, url: convertFileSrc(photoPath), metadata } });
   },
   closeDetailsSidebar: () => set({ selectedPhoto: null }),

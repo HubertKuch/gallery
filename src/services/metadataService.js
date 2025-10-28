@@ -1,13 +1,14 @@
-import { invoke } from '@tauri-apps/api/core';
+import {invoke} from '@tauri-apps/api/core';
 
 class MetadataService {
-  static async getMetadata(photoPath) {
-    const res = await invoke('get_image_metadata', { filePath: photoPath });
+    static async getMetadata(photoPath) {
+        console.log(photoPath)
+        const res = await invoke('get_image_metadata', {filePath: photoPath});
 
-    console.log(res);
+        console.log(res);
 
-    return res.entries;
-  }
+        return res.entries;
+    }
 }
 
 export default MetadataService;

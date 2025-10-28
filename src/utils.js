@@ -1,4 +1,3 @@
-import albumService from './services/albumService.js';
 import settingsStore from './stores/settingsStore.js';
 
 export function safe(callable) {
@@ -190,4 +189,50 @@ export function categorizeExifData(flatDataMap) {
     }
 
     return finalData;
+}
+
+export function isRawFile(path) {
+    return path.toLowerCase().endsWith('.raw') ||
+        path.toLowerCase().endsWith('.arw') ||
+        path.toLowerCase().endsWith('.cr2') ||
+        path.toLowerCase().endsWith('.cr3') ||
+        path.toLowerCase().endsWith('.dng') ||
+        path.toLowerCase().endsWith('.nef') ||
+        path.toLowerCase().endsWith('.orf') ||
+        path.toLowerCase().endsWith('.raf') ||
+        path.toLowerCase().endsWith('.sr2') ||
+        path.toLowerCase().endsWith('.srf') ||
+        path.toLowerCase().endsWith('.kdc') ||
+        path.toLowerCase().endsWith('.mrw') ||
+        path.toLowerCase().endsWith('.pef') ||
+        path.toLowerCase().endsWith('.x3f');
+}
+
+
+/**
+ * Converts a Tauri asset path (asset://localhost/...) back to a
+ * regular file system path string.
+ *
+ * @param {string} tauriPath - The input string starting with "asset://localhost/".
+ * @returns {string | null} The decoded file system path, or null if the
+ * input is invalid or doesn't have the correct prefix.
+ */
+export function tauriAssetToPath(tauriPath) {
+    const prefix = "asset://localhost/";
+
+    if (typeof tauriPath !== 'string' || !tauriPath.startsWith(prefix)) {
+        console.error("Invalid input: Path does not start with", prefix);
+        return null; // Return null for invalid input
+    }
+
+    // Remove the prefix
+    const encodedPath = tauriPath.substring(prefix.length);
+
+    try {
+        // Decode the URL-encoded path
+        return decodeURIComponent(encodedPath);
+    } catch (error) {
+        console.error("Failed to decode URI component:", error);
+        return null; // Return null if decoding fails
+    }
 }

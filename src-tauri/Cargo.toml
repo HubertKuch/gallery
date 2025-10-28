@@ -30,6 +30,7 @@ rayon = "1.10.0"
 rexif = "0.7.5"
 rsraw = "0.1.0"
 image = "0.25.8"
+rexiv2 = "0.10.0"
 
 [features]
 custom-protocol = ["tauri/custom-protocol"]
