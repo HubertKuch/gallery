@@ -1,14 +1,15 @@
 import useAlbumStore from '../stores/albumStore';
 import {convertFileSrc, invoke} from "@tauri-apps/api/core";
-import { useMemo } from 'react';
+import {useMemo, useState, useEffect} from 'react';
 import usePhotoStore from "../stores/photoStore.js";
 import {albumPathRelatedToDefaultPath, isRawFile, tauriAssetToPath} from "../utils.js";
+import ContextMenu from "./ContextMenu.jsx";
 
 const ImageSkeleton = () => (
     <div className="skeleton aspect-square bg-base-300 rounded-lg"></div>
 );
 
-const Breadcrumbs = ({ path }) => {
+const Breadcrumbs = ({path}) => {
     if (!path) {
         return null;
     }
@@ -36,7 +37,39 @@ const MainContent = () => {
         isLoadingThumbnails,
         imageCount
     } = useAlbumStore();
-    const { openDetailsSidebar } = usePhotoStore();
+    const {openDetailsSidebar} = usePhotoStore();
+    const [contextMenu, setContextMenu] = useState(null);
+
+
+    const CTX_MENU_ITEMS = [
+        {
+            name: 'Preview',
+            action: () => {
+                console.log(contextMenu.item)
+                openDetailsSidebar(contextMenu.item.original).then();
+            }
+        },
+        {name: 'Delete', action: 'delete'},
+        {name: 'Compare', action: 'compare'},
+        {name: 'Add to album', action: 'add-to-album'},
+    ];
+
+    useEffect(() => {
+        const handleClick = () => setContextMenu(null);
+        window.addEventListener('click', handleClick);
+        return () => {
+            window.removeEventListener('click', handleClick);
+        };
+    }, []);
+
+    const handleContextMenu = (event, item) => {
+        event.preventDefault();
+        setContextMenu({
+            x: event.clientX,
+            y: event.clientY,
+            item: item,
+        });
+    };
 
     const imageItems = useMemo(() => {
         if (!currentAlbumThumbnails) {
@@ -53,7 +86,8 @@ const MainContent = () => {
         <main className="flex-1 p-4 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold">{currentAlbum ? <Breadcrumbs path={albumPathRelatedToDefaultPath(currentAlbum.path)} /> : 'Select an album'}</h2>
+                    <h2 className="text-2xl font-bold">{currentAlbum ?
+                        <Breadcrumbs path={albumPathRelatedToDefaultPath(currentAlbum.path)}/> : 'Select an album'}</h2>
                     {isLoadingThumbnails && imageCount === 0 && (
                         <span className="loading loading-spinner loading-sm"></span>
                     )}
@@ -70,6 +104,7 @@ const MainContent = () => {
                             console.log(item);
                             openDetailsSidebar(isRawFile(item.original) ? await invoke("get_raw_preview_path_by_thumbnail", {thumbnailPath: tauriAssetToPath(item.thumbUrl)}) : item.original).then()
                         }}
+                        onContextMenu={(e) => handleContextMenu(e, item)}
                         className="relative aspect-square hover:bg-base-300/90 select-none cursor-pointer rounded-lg p-1 bg-transparent overflow-hidden"
                     >
                         {isRawFile(item.original) && (
@@ -88,10 +123,15 @@ const MainContent = () => {
                     imageCount > 0 &&
                     skeletonCount > 0 &&
                     Array(skeletonCount).fill(0).map((_, i) => (
-                        <ImageSkeleton key={`skeleton-${i}`} />
+                        <ImageSkeleton key={`skeleton-${i}`}/>
                     ))
                 }
             </div>
+            <ContextMenu
+                menuItems={CTX_MENU_ITEMS}
+                position={contextMenu ? {x: contextMenu.x, y: contextMenu.y} : null}
+                title={contextMenu ? contextMenu.item.original : null}
+            />
             {import.meta.env.DEV && <p className="text-xs text-base-content/50 mt-4">Running in new-dev mode.</p>}
         </main>
     );
