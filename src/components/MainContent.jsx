@@ -1,5 +1,5 @@
 import useAlbumStore from '../stores/albumStore';
-import { convertFileSrc } from "@tauri-apps/api/core";
+import {convertFileSrc, invoke} from "@tauri-apps/api/core";
 import { useMemo } from 'react';
 import usePhotoStore from "../stores/photoStore.js";
 import {albumPathRelatedToDefaultPath, isRawFile, tauriAssetToPath} from "../utils.js";
@@ -66,9 +66,9 @@ const MainContent = () => {
                 {imageItems.map((item) => (
                     <div
                         key={item.original}
-                        onClick={() => {
+                        onClick={async () => {
                             console.log(item);
-                            openDetailsSidebar(isRawFile(item.original) ? tauriAssetToPath(item.thumbUrl) : item.original).then()
+                            openDetailsSidebar(isRawFile(item.original) ? await invoke("get_raw_preview_path_by_thumbnail", {thumbnailPath: tauriAssetToPath(item.thumbUrl)}) : item.original).then()
                         }}
                         className="aspect-square hover:bg-base-300/90 select-none cursor-pointer rounded-lg p-1 bg-transparent overflow-hidden"
                     >

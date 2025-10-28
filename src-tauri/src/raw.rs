@@ -28,6 +28,10 @@ pub fn process_raw_file(raw_file_path: String, jpeg_path: &mut PathBuf) -> Proce
     Ok(save_thumb_with_metadata(smaller_thumb, jpeg_path, &PathBuf::from(&raw_file_path))?)
 }
 
+pub fn get_preview_path_by_thumbnail(thumbnail_path: &str) -> String {
+    thumbnail_path.replace("thumbnails", "rawpreview").to_string()
+}
+
 fn save_thumb_with_metadata(thumb: Option<&ThumbnailImage>, path: &PathBuf, metadata_original_path: &PathBuf) -> ProcessResult<PathBuf> {
     if let Some(thumb) = thumb {
         println!(
@@ -68,7 +72,7 @@ pub fn copy_metadata(original_path: &str, copy_path: &str) -> CopyMetaResult<()>
         return Err(format!("Destination file {} does not exist.", copy_path).into());
     }
 
-    let metadata = rexiv2::Metadata::new_from_path(copy_p)?;
+    let metadata = rexiv2::Metadata::new_from_path(original_path)?;
     println!("DEBUG: [rexiv2] Successfully read metadata from {}", original_path);
 
     metadata.save_to_file(copy_p)?;

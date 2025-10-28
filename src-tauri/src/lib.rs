@@ -7,7 +7,7 @@ use tauri::{AppHandle, Manager, Emitter, Runtime};
 use rayon::prelude::*;
 use md5;
 use rexif;
-use crate::raw::process_raw_file;
+use crate::raw::{get_preview_path_by_thumbnail, process_raw_file};
 
 fn is_image(path: &Path) -> bool {
     match path.extension().and_then(|s| s.to_str()) {
@@ -37,9 +37,14 @@ fn process_single_thumbnail<R: Runtime>(
         .map_err(|e| e.to_string())?;
 
     let thumbnail_dir = cache_dir.join("thumbnails");
+    let preview_dir = cache_dir.join("rawpreview");
 
     if !thumbnail_dir.exists() {
         fs::create_dir_all(&thumbnail_dir).map_err(|e| e.to_string())?;
+    }
+
+    if !preview_dir.exists() {
+        fs::create_dir_all(&preview_dir).map_err(|e| e.to_string())?;
     }
 
     let hash = md5::compute(original_path.as_bytes());
@@ -156,6 +161,11 @@ async fn get_image_metadata(file_path: String) -> Result<ImageMetadata, String> 
     })
 }
 
+#[tauri::command]
+fn get_raw_preview_path_by_thumbnail(thumbnail_path: String) -> String {
+    get_preview_path_by_thumbnail(thumbnail_path.as_str())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -166,7 +176,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             start_album_load,
-            get_image_metadata
+            get_image_metadata,
+            get_raw_preview_path_by_thumbnail
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
