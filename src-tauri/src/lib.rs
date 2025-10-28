@@ -1,17 +1,20 @@
 mod raw;
+use crate::raw::{get_preview_path_by_thumbnail, process_raw_file};
+use md5;
+use rayon::prelude::*;
+use rexif;
 use std::collections::HashMap;
 use std::fs;
-use std::path::{Path};
+use std::path::{Path, PathBuf};
 use std::thread;
-use tauri::{AppHandle, Manager, Emitter, Runtime};
-use rayon::prelude::*;
-use md5;
-use rexif;
-use crate::raw::{get_preview_path_by_thumbnail, process_raw_file};
+use tauri::{AppHandle, Emitter, Manager, Runtime};
 
 fn is_image(path: &Path) -> bool {
     match path.extension().and_then(|s| s.to_str()) {
-        Some(ext) => matches!(ext.to_lowercase().as_str(), "jpg" | "jpeg" | "png" | "gif" | "bmp" | "webp" | "cr2" | "nef" | "arw"),
+        Some(ext) => matches!(
+            ext.to_lowercase().as_str(),
+            "jpg" | "jpeg" | "png" | "gif" | "bmp" | "webp" | "cr2" | "nef" | "arw"
+        ),
         None => false,
     }
 }
@@ -23,14 +26,17 @@ fn create_new_thumbnail(original_path: &str, thumbnail_path: &Path) -> Result<()
 
     let thumbnail = img.thumbnail(400, 400);
 
-    thumbnail.save_with_format(thumbnail_path, image::ImageFormat::Jpeg)
+    thumbnail
+        .save_with_format(thumbnail_path, image::ImageFormat::Jpeg)
         .map_err(|e| e.to_string())
 }
 
-fn process_single_thumbnail<R: Runtime>(
-    original_path: &str,
-    app_handle: &AppHandle<R>,
-) -> Result<String, String> {
+struct CacheDirs {
+    thumbnail_dir: PathBuf,
+    preview_dir: PathBuf,
+}
+
+fn create_cache_dirs<R: Runtime>(app_handle: &AppHandle<R>) -> Result<CacheDirs, String> {
     let cache_dir = app_handle
         .path()
         .app_cache_dir()
@@ -46,6 +52,19 @@ fn process_single_thumbnail<R: Runtime>(
     if !preview_dir.exists() {
         fs::create_dir_all(&preview_dir).map_err(|e| e.to_string())?;
     }
+
+    Ok(CacheDirs {
+        thumbnail_dir,
+        preview_dir,
+    })
+}
+
+fn process_single_thumbnail<R: Runtime>(
+    original_path: &str,
+    app_handle: &AppHandle<R>,
+) -> Result<String, String> {
+    let cache_dirs = create_cache_dirs(app_handle)?;
+    let thumbnail_dir = cache_dirs.thumbnail_dir;
 
     let hash = md5::compute(original_path.as_bytes());
     let thumbnail_filename = format!("{:x}.jpg", hash);
@@ -148,10 +167,7 @@ async fn get_image_metadata(file_path: String) -> Result<ImageMetadata, String> 
                 .map_err(|e| format!("Failed to parse EXIF data: {}", e.to_string()))?;
 
             for entry in exif_data.entries {
-                metadata_map.insert(
-                    entry.tag.to_string(),
-                    entry.value_more_readable.to_string(),
-                );
+                metadata_map.insert(entry.tag.to_string(), entry.value_more_readable.to_string());
             }
         }
     }
@@ -166,6 +182,25 @@ fn get_raw_preview_path_by_thumbnail(thumbnail_path: String) -> String {
     get_preview_path_by_thumbnail(thumbnail_path.as_str())
 }
 
+#[tauri::command]
+fn invalidate_cache<R: Runtime>(app_handle: AppHandle<R>) {
+    let cache_dir = app_handle.path().app_cache_dir().unwrap();
+
+    if cache_dir.exists() {
+        if let Ok(entries) = fs::read_dir(&cache_dir) {
+            for entry in entries.filter_map(Result::ok) {
+                let path = entry.path();
+                if path.is_dir() {
+                    fs::remove_dir_all(&path).unwrap_or_else(|e| eprintln!("Failed to remove directory {}: {}", path.display(), e));
+                } else {
+                    fs::remove_file(&path).unwrap_or_else(|e| eprintln!("Failed to remove file {}: {}", path.display(), e));
+                }
+            }
+        }
+    }
+    create_cache_dirs(&app_handle).expect("Expected cache dirs to be created.");
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -177,7 +212,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             start_album_load,
             get_image_metadata,
-            get_raw_preview_path_by_thumbnail
+            get_raw_preview_path_by_thumbnail,
+            invalidate_cache
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
