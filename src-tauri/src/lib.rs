@@ -1,5 +1,6 @@
 mod raw;
 use crate::raw::{get_preview_path_by_thumbnail, process_raw_file};
+use gphoto2;
 use md5;
 use rayon::prelude::*;
 use rexif;
@@ -8,6 +9,70 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::thread;
 use tauri::{AppHandle, Emitter, Manager, Runtime};
+
+#[derive(serde::Serialize, Clone)]
+struct CameraDevice {
+    name: String,
+    port: String,
+}
+
+#[derive(serde::Serialize, Clone)]
+struct CameraFile {
+    name: String,
+    path: String,
+}
+
+// #[tauri::command]
+// async fn import_camera_files(port: String, files: Vec<String>, destination: String) -> Result<(), String> {
+//     use std::path::PathBuf;
+//
+//     let context = gphoto2::Context::new().map_err(|e| e.to_string())?;
+//
+//     let cameras = context.list_cameras().wait().map_err(|e| e.to_string())?;
+//
+//     let camera_descriptor = cameras
+//         .iter()
+//         .find(|(_, addr)| *addr == port)
+//         .ok_or_else(|| "Camera not found".to_string())?.0;
+//
+//     let mut camera = context.get_camera(camera_descriptor).wait().map_err(|e| e.to_string())?;
+//
+//     for file_path in files {
+//         let parts: Vec<&str> = file_path.splitn(2, '/').collect();
+//         if parts.len() == 2 {
+//             let folder = parts[0];
+//             let filename = parts[1];
+//
+//             let mut dest_path = PathBuf::from(&destination);
+//             dest_path.push(filename);
+//
+//             camera.fs()
+//                 .download_to(folder, filename, dest_path.as_path())
+//                 .wait()
+//                 .map_err(|e| e.to_string())?;
+//         }
+//     }
+//
+//     Ok(())
+// }
+
+#[tauri::command]
+async fn list_cameras() -> Result<Vec<CameraDevice>, String> {
+    let context = gphoto2::Context::new().map_err(|e| e.to_string())?;
+
+    let cameras = context.list_cameras().wait().map_err(|e| e.to_string())?;
+
+    let mut camera_devices = Vec::new();
+
+    for camerDescriptor in cameras {
+        camera_devices.push(CameraDevice {
+            name: camerDescriptor.model,
+            port: camerDescriptor.port,
+        });
+    }
+
+    Ok(camera_devices)
+}
 
 fn is_image(path: &Path) -> bool {
     match path.extension().and_then(|s| s.to_str()) {
@@ -223,7 +288,8 @@ pub fn run() {
             start_album_load,
             get_image_metadata,
             get_raw_preview_path_by_thumbnail,
-            invalidate_cache
+            invalidate_cache,
+            list_cameras
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
