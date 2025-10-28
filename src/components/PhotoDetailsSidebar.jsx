@@ -1,4 +1,5 @@
 import usePhotoStore from '../stores/photoStore';
+import {categorizeExifData} from "../utils.js";
 
 function PhotoDetailsSidebar() {
   const { selectedPhoto, closeDetailsSidebar } = usePhotoStore();
@@ -17,18 +18,18 @@ function PhotoDetailsSidebar() {
       </div>
       <div className="overflow-x-hidden">
         <img src={selectedPhoto.url} alt="" className="w-full h-auto rounded-lg mb-4" />
-        <ul>
-          {Object.entries(selectedPhoto.metadata).map(([key, value]) => (
-            <li key={key} title={String(value)} className="text-wrap max-w-full">
-              <strong>
-                {key}
-                :
-              </strong>
-              {' '}
-              {String(value)}
-            </li>
+        <div>
+          {Object.entries(categorizeExifData(selectedPhoto.metadata)).map(([key, value]) => (
+            <details key={key} title={String(value)} className="text-wrap max-w-full">
+              <summary className={"text-lg font-bold mb-2 mt-2 text-gray-300"}>
+                {key}:
+              </summary>
+              <ul>
+                  {value.map(({name, value}) => <li key={name+"value"+value}><strong>{name}</strong>: {value}</li>)}
+              </ul>
+            </details>
           ))}
-        </ul>
+        </div>
       </div>
     </aside>
   );
